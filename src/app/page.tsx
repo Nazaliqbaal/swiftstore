@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import EmblaCarousel from "@/components/ui/BannerCarousel/EmblaCarousel";
 import { EmblaOptionsType } from "embla-carousel";
 import "../components/ui/BannerCarousel/embla.css";
+import Link from "next/link";
 
 export default async function Home() {
   const products = await prisma.product.findMany({
@@ -12,14 +13,22 @@ export default async function Home() {
   const SLIDE_COUNT = 5;
   const SLIDES = Array.from(Array(SLIDE_COUNT).keys());
   return (
-    <div className=" flex gap-4 font-poppins">
-      <div className="flex flex-col">
+    <div className="font-poppins">
+      <div className="">
         <div className="max-w-full px-4 my-8">
-          <EmblaCarousel slides={SLIDES} options={OPTIONS} />
+          <EmblaCarousel
+            products={products}
+            slides={SLIDES}
+            options={OPTIONS}
+          />
         </div>
-        <div className="flex flex-row gap-4 flex-1 px-5 flex-wrap">
+        <div className="grid gap-5 px-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {products.map((product) => {
-            return <ProductCard key={product.id} product={product} />;
+            return (
+              <Link key={product.id} href={`/product/${product.id}`}>
+                <ProductCard key={product.id} product={product} />
+              </Link>
+            );
           })}
         </div>
       </div>

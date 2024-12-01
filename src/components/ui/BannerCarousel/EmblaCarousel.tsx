@@ -5,6 +5,10 @@ import { EmblaOptionsType } from "embla-carousel";
 import useEmblaCarousel from "embla-carousel-react";
 import Fade from "embla-carousel-fade";
 import Autoplay from "embla-carousel-autoplay";
+import { Product } from "@prisma/client";
+import Image from "next/image";
+import { Button } from "../button";
+import Link from "next/link";
 // import {
 //   NextButton,
 //   PrevButton,
@@ -15,14 +19,18 @@ import Autoplay from "embla-carousel-autoplay";
 type PropType = {
   slides: number[];
   options?: EmblaOptionsType;
+  products: Product[];
 };
 
 const EmblaCarousel: React.FC<PropType> = (props) => {
-  const { slides, options } = props;
+  const { options, products } = props;
   const [emblaRef] = useEmblaCarousel(options, [
     Fade(),
     Autoplay({ playOnInit: true, delay: 3000 }),
   ]);
+  if (!products) {
+    return "No products";
+  }
 
   //   const { selectedIndex, scrollSnaps, onDotButtonClick } =
   //     useDotButton(emblaApi);
@@ -37,37 +45,29 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
   return (
     <div className="embla">
       <div className="embla__viewport" ref={emblaRef}>
-        <div className="embla__container">
-          {slides.map((index) => (
+        <div className="embla__container bg-slate-50 p-4 rounded-2xl">
+          {products.map((product, index) => (
             <div className="embla__slide" key={index}>
-              <img
-                className="embla__slide__img"
-                src={`https://picsum.photos/600/350?v=${index}`}
-                alt="Your alt text"
-              />
+              <div className="flex flex-col md:flex-row md:justify-between gap-4">
+                <Image
+                  src={product.imageUrl || "/assets/product-placeholder.jpg"}
+                  alt="product-image"
+                  width={800}
+                  height={800}
+                  className="flex-1 embla__slide__img h-[200px] lg:h-[350px] rounded-md"
+                />
+                <div className=" flex-2 text-center md:m-auto">
+                  <h1 className="font-bold my-4 text-2xl">{product.name}</h1>
+                  <p className="mb-4">{product.description}</p>
+                  <Link href={`/product/${product.id}`}>
+                    <Button>Buy now @ &#8377; {product.price}</Button>
+                  </Link>
+                </div>
+              </div>
             </div>
           ))}
         </div>
       </div>
-
-      {/* <div className="embla__controls">
-        <div className="embla__buttons">
-          <PrevButton onClick={onPrevButtonClick} disabled={prevBtnDisabled} />
-          <NextButton onClick={onNextButtonClick} disabled={nextBtnDisabled} />
-        </div>
-
-        <div className="embla__dots">
-          {scrollSnaps.map((_, index) => (
-            <DotButton
-              key={index}
-              onClick={() => onDotButtonClick(index)}
-              className={"embla__dot".concat(
-                index === selectedIndex ? " embla__dot--selected" : ""
-              )}
-            />
-          ))}
-        </div>
-      </div> */}
     </div>
   );
 };
